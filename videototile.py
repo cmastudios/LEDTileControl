@@ -20,6 +20,14 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 
     crop = image[0:image.shape[1], :, :]
     resize = cv2.resize(crop, (10, 10))
+
+    resize = cv2.cvtColor(resize, cv2.COLOR_BGR2RGB)
+
+#    gray = cv2.cvtColor(resize, cv2.COLOR_BGR2GRAY)
+#    _, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+#    resize = cv2.cvtColor(binary, cv2.COLOR_GRAY2BGR)
+
+
     leds.draw(resize)
 
     rawCapture.truncate(0)

@@ -32,7 +32,7 @@ class TileArray(object):
             self.tiles.append(elems)
 
     def size(self):
-        return self.rows * self.height + self.cols * self.width
+        return self.rows * self.height * self.cols * self.width
 
     def tileindex(self, x, y):
         return x // self.width, y // self.height
@@ -54,9 +54,12 @@ class LEDStrip(object):
 
     def draw(self, image:np.ndarray):
         from neopixel import Color
-        for y in image.shape[0]:
-            for x in image.shape[1]:
+        for y in range(image.shape[0]):
+            for x in range(image.shape[1]):
                 idx = self.array.index(x, y)
-                color = Color(image[y][x][0], image[y][x][1], image[y][x][2])
+                r = int(image[y][x][0])
+                g = int(image[y][x][1])
+                b = int(image[y][x][2])
+                color = Color(g, r, b)
                 self.strip.setPixelColor(idx, color)
         self.strip.show()
