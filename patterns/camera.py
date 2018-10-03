@@ -13,8 +13,8 @@ time.sleep(0.1)
 
 def display(board, leds):
     # take picture
-    frame = camera.capture(rawCapture, format="rgb", use_video_port=True)
-    image = frame.array
+    camera.capture(rawCapture, format="rgb", use_video_port=True)
+    image = rawCapture.array
     # make the picture a square
     crop = image[0:image.shape[1], :, :]
     # fit picture to tile

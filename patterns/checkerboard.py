@@ -3,7 +3,8 @@ import random
 import numpy as np
 
 
-def display(board, leds):
+def display(board, leds, delay=0.5):
+    delay = float(delay)
     c1 = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
     c2 = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
     image = np.tile(c1, board.shape).astype(np.uint8)
@@ -15,4 +16,4 @@ def display(board, leds):
             xend = (tx + 1) * board.width
             if (ty + tx) % 2 == 0:
                 image[ystart:yend, xstart:xend] = c2
-    leds.draw(image, delay=0.5)
+    leds.draw(image, delay=delay)

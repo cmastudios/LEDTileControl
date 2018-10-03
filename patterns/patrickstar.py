@@ -6,8 +6,9 @@ import numpy as np
 last_color = (0, 0, 0)
 
 
-def display(board, leds):
+def display(board, leds, delay=0.1):
     global last_color
+    delay = float(delay)
     spot = (random.randint(0, board.shape[1]), random.randint(0, board.shape[0]))
     color1 = [random.randint(0, 256), random.randint(0, 256), random.randint(0, 256)]
     color2 = [random.randint(0, 256), random.randint(0, 256), random.randint(0, 256)]
@@ -19,5 +20,5 @@ def display(board, leds):
         cv2.circle(img, spot, i, color2, thickness=1)
 
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        leds.draw(img, delay=0.04)
+        leds.draw(img, delay=delay)
     last_color = color1

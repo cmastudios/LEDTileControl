@@ -4,7 +4,8 @@ import cv2
 import numpy as np
 
 
-def display(board, leds):
+def display(board, leds, delay=0.1):
+    delay = float(delay)
     b_color = (randint(0, 200), randint(0, 50), randint(0, 50))
     f_color = (randint(0, 100), randint(0, 100), randint(150, 255))
     start = (0, 0)
@@ -25,4 +26,4 @@ def display(board, leds):
                 cv2.line(img, line[0], line[1], f_color, thickness=1)
             start = (i, j)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            leds.draw(img, delay=0.1)
+            leds.draw(img, delay=delay)

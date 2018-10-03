@@ -12,6 +12,7 @@ def display(board, leds, delay=0.05):
     :param delay:
     """
     global i
+    delay = float(delay)
     img = np.tile([i, 255, 255], board.shape).astype(np.uint8)
     img = cv2.cvtColor(img, cv2.COLOR_HSV2RGB)
     leds.draw(img, delay=delay)
