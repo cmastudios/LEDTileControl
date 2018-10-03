@@ -6,6 +6,23 @@ import numpy as np
 
 import tile
 
+
+def run_pattern(board, leds, pattern, extra_args):
+    pattern = importlib.import_module("patterns." + pattern)
+
+    try:
+        while True:
+            pattern.display(board, leds, *extra_args)
+    except KeyboardInterrupt:
+        # black the display
+        black = np.tile([0, 0, 0], board.shape).astype(np.uint8)
+        try:
+            leds.draw(black)
+            del leds
+        except KeyboardInterrupt:
+            pass
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Display a pattern on the dancefloor')
     parser.add_argument('pattern', help='Name of pattern file')
@@ -26,16 +43,4 @@ if __name__ == "__main__":
     else:
         leds = tile.LEDStrip(board)
 
-    pattern = importlib.import_module("patterns." + args.pattern)
-
-    try:
-        while True:
-            pattern.display(board, leds, *args.extra_args)
-    except KeyboardInterrupt:
-        # black the display
-        black = np.tile([0, 0, 0], board.shape).astype(np.uint8)
-        try:
-            leds.draw(black)
-            del leds
-        except:
-            pass
+    run_pattern(board, leds, args.pattern, args.extra_args)
