@@ -95,7 +95,7 @@ class LEDSimulatorCV(object):
         self.cv = cv2
         self.cv.namedWindow("LEDs")
 
-    def draw(self, image: np.ndarray, delay: float):
+    def draw(self, image: np.ndarray, delay: float = 0.001):
         image = image.astype(np.uint8)
         image = self.cv.resize(image, (800, 800))
         image = self.cv.cvtColor(image, self.cv.COLOR_RGB2BGR)
@@ -114,7 +114,7 @@ class LEDSimulatorMatplotlib(object):
         self.fig = plt.figure()
         self.axis = self.fig.add_subplot(111)
 
-    def draw(self, image: np.ndarray, delay: float):
+    def draw(self, image: np.ndarray, delay: float = 0.001):
         self.axis.imshow(image)
         self.plt.pause(delay)
         if has_been_closed(self.axis):
