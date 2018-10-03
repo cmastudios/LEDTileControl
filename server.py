@@ -71,12 +71,12 @@ Extra Args: {x}<br><br>
     <input type="submit">
 </form>
 """
-patternstemplate = """<option value="{p}">{p}</option>"""
+patternstemplate = """<option value="{p}" {s}>{p}</option>"""
 
 
 @app.route('/')
 def hello_world():
-    patterns = "\n".join([patternstemplate.format(p=name) for _, name, _ in pkgutil.iter_modules(['patterns'])])
+    patterns = "\n".join([patternstemplate.format(p=name, s="selected" if name == pattern else "") for _, name, _ in pkgutil.iter_modules(['patterns'])])
     return indextemplate.format(r=rows, c=cols, w=width, h=height, s=shuffle, p=pattern, ps=patterns, x=extra_args)
 
 
