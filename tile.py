@@ -62,7 +62,7 @@ class LEDStrip(object):
         self.strip.begin()
         self.array = array
 
-    def draw(self, image: np.ndarray, delay: float):
+    def draw(self, image: np.ndarray, delay: float = 0.001):
         from neopixel import Color
         start = time.time()
         for y in range(image.shape[0]):
