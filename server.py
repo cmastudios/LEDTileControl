@@ -25,7 +25,7 @@ def run():
     else:
         board = tile.TileArray(rows=rows, cols=cols, height=height, width=width)
         leds = tile.LEDStrip(board)
-        run_pattern.run_pattern(board, leds, pattern, extra_args.split(" "))
+        run_pattern.run_pattern(board, leds, pattern, extra_args.split())
 
 
 def start_proc():
@@ -111,4 +111,4 @@ def save_shuffle():
 
 
 if __name__ == "__main__":
-    app.run(port=80)
+    app.run(port=80, host="0")
