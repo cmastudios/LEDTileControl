@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vertigo Dancefloor Control</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: "Roboto", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
+        }
+    </style>
+    <script>
+        function reeeee() {
+            document.getElementById("extra").value = "";
+        }
+    </script>
+</head>
+<body>
+<p>WARNING: only IEEE members may change these settings. Any unauthorized use is punishable under 18 U.S. Code § 1030.</p>
+<section>
+    <h1>Run a different pattern</h1>
+    <form action="/save-pattern" method="post">
+        <label for="pattern">Pattern</label>
+        <select name="pattern" onchange="reeeee()">
+            {% for pattern_l in patterns %}
+                <option value="{{ pattern_l }}"
+                        {% if pattern_l == pattern %}selected{% endif %}>{{ pattern_l }}</option>
+            {% endfor %}
+        </select><br>
+        <label for="extra">Extra Arguments</label>
+        <input type="text" id="extra" name="extra" value="{{ extra }}"><br>
+        <input type="submit">
+    </form>
+</section>
+<section>
+    <h1>Shuffle play</h1>
+    <form action="/save-shuffle" method="post">
+        <input type="submit">
+    </form>
+</section>
+<section>
+    <h1>Change settings</h1>
+    <form action="/save-settings" method="post">
+        <label for="rows">Tile rows</label>
+        <input type="text" id="rows" name="rows" value="{{ rows }}"><br>
+        <label for="cols">Tile columns</label>
+        <input type="text" id="cols" name="cols" value="{{ cols }}"><br>
+        <label for="width">LEDs per tile column</label>
+        <input type="text" id="width" name="width" value="{{ width }}"><br>
+        <label for="height">LEDs per tile row</label>
+        <input type="text" id="height" name="height" value="{{ height }}"><br>
+        <input type="submit">
+    </form>
+</section>
+</body>
+</html>

@@ -40,6 +40,14 @@ class TileArray(object):
 
     @property
     def shape(self):
+        """
+        Gets the shape of the dancefloor. This is calculated from the --rows, --cols, --width, --height
+        options.
+        Examples:
+        1 tile, 10x10 LEDs => board.shape == (10, 10, 1)
+        5x6 tiles, 10x10 LEDs => board.shape == (50, 60, 1)
+        :return: 3-tuple containing dimensions of tile matrix (height, width, channels)
+        """
         return self.rows * self.height, self.cols * self.width, 1
 
     def tileindex(self, x, y):
@@ -63,6 +71,14 @@ class LEDStrip(object):
         self.array = array
 
     def draw(self, image: np.ndarray, delay: float = 0.001):
+        """
+        Draws a matrix of color values to the dancefloor tiles. Handles the math of calculating what pixels
+        correspond to which LEDs in the chain of LED strips. The input image should have a shape of
+        (height, width, 3) where height is the LEDs in the vertical direction and width is the total LEDs in
+        the horizontal direction.
+        :param image: Matrix of colors to display on the dancefloor
+        :param delay: Seconds to wait after finishing writing to the LED strips
+        """
         from neopixel import Color
         start = time.time()
         for y in range(image.shape[0]):

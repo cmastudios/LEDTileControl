@@ -1,5 +1,5 @@
 import multiprocessing
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect, render_template
 import run_pattern
 import tile
 import pkgutil
@@ -37,47 +37,11 @@ def start_proc():
     process.start()
 
 
-indextemplate = """
-<h1>Current settings:</h1><br>
-Rows: {r} Cols: {c}<br>
-Width: {w} Height: {h}<br>
-Shuffle? {s}<br>
-Pattern: {p}<br>
-Extra Args: {x}<br><br>
-<h1>Change settings</h1>
-<form action="/save-settings" method="post">
-    <label for="rows">Rows</label>
-    <input type="text" id="rows" name="rows" value="{r}"><br>
-    <label for="cols">Cols</label>
-    <input type="text" id="cols" name="cols" value="{c}"><br>
-    <label for="width">Width</label>
-    <input type="text" id="width" name="width" value="{w}"><br>
-    <label for="height">Height</label>
-    <input type="text" id="height" name="height" value="{h}"><br>
-    <input type="submit">
-</form>
-<h1>Run a different pattern</h1>
-<form action="/save-pattern" method="post">
-    <label for="pattern">Pattern</label>
-    <select name="pattern">
-        {ps}
-    </select>
-    <label for="extra">Extra Args</label>
-    <input type="text" id="extra" name="extra" value="{x}"><br>
-    <input type="submit">
-</form>
-<h1>Shuffle play</h1>
-<form action="/save-shuffle" method="post">
-    <input type="submit">
-</form>
-"""
-patternstemplate = """<option value="{p}" {s}>{p}</option>"""
-
-
 @app.route('/')
 def hello_world():
-    patterns = "\n".join([patternstemplate.format(p=name, s="selected" if name == pattern else "") for _, name, _ in pkgutil.iter_modules(['patterns'])])
-    return indextemplate.format(r=rows, c=cols, w=width, h=height, s=shuffle, p=pattern, ps=patterns, x=extra_args)
+    patterns = [name for _, name, _ in pkgutil.iter_modules(['patterns'])]
+    return render_template("index.html", rows=rows, cols=cols, width=width, height=height, shuffle=shuffle,
+                           pattern=pattern, patterns=patterns, extra=extra_args)
 
 
 @app.route('/save-settings', methods=['POST'])
