@@ -9,7 +9,7 @@ form {
 }
 
 .header {
-  background-image: url("assets/club.jpg");
+  background-image: url("club.jpg");
   background-repeat: no-repeat;
   background-size: cover;
   height: 50vh;
