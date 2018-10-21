@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="assets/style.css">
     <title>Vertigo Dancefloor Control</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
@@ -16,6 +17,9 @@
     </script>
 </head>
 <body>
+<div class="header">
+  <h1>Vertigo Dance Floor Control</h1>
+</div>
 <p>WARNING: only IEEE members may change these settings. Any unauthorized use is punishable under 18 U.S. Code § 1030.</p>
 <section>
     <h1>Run a different pattern</h1>
@@ -29,13 +33,13 @@
         </select><br>
         <label for="extra">Extra Arguments</label>
         <input type="text" id="extra" name="extra" value="{{ extra }}"><br>
-        <input type="submit">
+        <input type="submit" id="submit">
     </form>
 </section>
 <section>
     <h1>Shuffle play</h1>
     <form action="/save-shuffle" method="post">
-        <input type="submit">
+        <input type="submit" id="submit">
     </form>
 </section>
 <section>
@@ -49,8 +53,9 @@
         <input type="text" id="width" name="width" value="{{ width }}"><br>
         <label for="height">LEDs per tile row</label>
         <input type="text" id="height" name="height" value="{{ height }}"><br>
-        <input type="submit">
+        <input type="submit" id="submit">
     </form>
 </section>
+<img alt="dance floor" src="assets/danceFloor.jpg">
 </body>
 </html>

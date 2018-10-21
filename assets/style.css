@@ -1,0 +1,105 @@
+/*Style Sheet for IEEE */
+body {
+  background-color: RGB(165,20,23);
+  margin: 0px;
+}
+
+form {
+  padding: 10px;
+}
+
+.header {
+  background-image: url("assets/club.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 50vh;
+  align-content: center;
+  box-shadow: 0 8px 16px 0 RGBA(0, 0, 0, 0.2);
+}
+
+.header h1 {
+  font-size: 8vh;
+  background-color: white;
+  border-radius: 10px;
+  font-weight: bold;
+  margin: 0 auto; /* Center the text container */
+  padding: 20px;
+  width: 50%;
+  text-align: center; /* Center text */
+  position: absolute;
+  top: 50%; /* Position text in the middle */
+  left: 50%; /* Position text in the middle */
+  transform: translate(-50%, -110%); /* Position text in the middle */
+  mix-blend-mode: screen; /* This makes the cutout text possible */
+}
+
+p {
+  padding: 20px;
+  color: darkRed;
+  background-color: RGB(200,200,200);
+  border-radius: 7px;
+  margin: 10px;
+  box-shadow: 0 8px 16px 0 RGBA(0, 0, 0, 0.2);
+}
+
+img {
+  max-width: 55vh;
+  width: 80%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 20px;
+  background-color: RGB(200,200,200);
+  border-radius: 7px;
+  margin: 20px;
+  box-shadow: 0 8px 16px 0 RGBA(0, 0, 0, 0.2);
+}
+
+section {
+  background-color: RGB(200,200,200);
+  background-image: linear-gradient(to bottom right, RGB(200,200,200), lightGray);
+  border-radius: 7px;
+  margin: 20px;
+  box-shadow: 0 8px 16px 0 RGBA(0, 0, 0, 0.2);
+}
+
+section h1 {
+  color: white;
+  background-color: RGB(108,115,115);
+  background-image: linear-gradient(to right, RGB(108,115,115), gray);
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+  padding: 10px;
+}
+
+#submit{
+  background-color: RGB(0,115,96);
+  height: 43px;
+  color: white;
+  font-size: 28px;
+  padding: 5px;
+  width: 180px;
+}
+
+input {
+  background-color: white;
+  width: 100px;
+  margin-left: 12px;
+}
+
+input:focus {
+  background-color: RGB(216,210,197);
+
+}
+
+label {
+  margin-bottom: 20px;
+  padding: 10px;
+  padding-right: 2px;
+  font-size: 20px;
+}
+
+input, select {
+  margin-bottom: 20px;
+  font-size: 18px;
+}
