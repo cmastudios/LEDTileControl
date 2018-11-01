@@ -16,10 +16,8 @@ def display(board, leds):
     # take picture
     camera.capture(rawCapture, format="rgb", use_video_port=True)
     image = rawCapture.array
-    # make the picture a square
-    crop = image[0:image.shape[1], :, :]
     # fit picture to tile
-    resize = cv2.resize(crop, board.shape[0:2])
+    resize = cv2.resize(image, board.shape[0:2])
     # use patrick's algorithm
     fgmask = fgbg.apply(resize)
     next_frame = convert(fgmask)

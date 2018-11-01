@@ -20,11 +20,11 @@ leds = None
 
 def run():
     global board, leds
+    board = tile.TileArray(rows=rows, cols=cols, height=height, width=width)
+    leds = tile.LEDStrip(board)
     if shuffle:
-        pass
+        run_pattern.shuffle(board, leds)
     else:
-        board = tile.TileArray(rows=rows, cols=cols, height=height, width=width)
-        leds = tile.LEDStrip(board)
         run_pattern.run_pattern(board, leds, pattern, extra_args.split())
 
 
@@ -75,4 +75,4 @@ def save_shuffle():
 
 
 if __name__ == "__main__":
-    app.run(port=80, host="0")
+    app.run(port=5000, host="0")
