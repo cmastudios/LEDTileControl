@@ -3,60 +3,36 @@ import numpy as np
 last_img = None
 delay = 0
 
-def display(board, leds, passed_delay=0.001):
+def display(board, leds, filename=None, passed_delay=0.001):
     global last_img, delay
+    if delay == 0:
+        delay = float(passed_delay)
+
     if last_img is None:
-        if board.shape[0]>10 and board.shape[1] > 37:
-            # Initialize Gosper Glider Gun if we have space
-            delay = 0.001
-            last_img = np.zeros((board.shape[0], board.shape[1]), dtype=np.uint8)
-            last_img[0:11, 0:38] = np.array([
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
-            [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            ])
-        elif board.shape[0] > 16 and board.shape[1] > 16:
-            #Initialize Pulsar
-            delay = 0.5
-            last_img = np.zeros((board.shape[0], board.shape[1]), dtype=np.uint8)
-            last_img[0:17, 0:17] = np.array([
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0],
-                [0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0],
-                [0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0],
-                [0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
-                [0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0],
-                [0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0],
-                [0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            ])
-        elif board.shape[0] > 4 and board.shape[1] > 4:
-            delay = 1
-            last_img = np.zeros((board.shape[0], board.shape[1]), dtype=np.uint8)
-            last_img[0:5, 0:5] = np.array([
-                [0, 0, 0, 0, 0],
-                [0, 0, 1, 0, 0],
-                [0, 0, 1, 0, 0],
-                [0, 0, 1, 0, 0],
-                [0, 0, 0, 0, 0]
-            ])
-    next_img = np.zeros((last_img.shape), dtype=np.uint8)
+        last_img = np.zeros((board.shape[0], board.shape[1]), dtype=np.uint8)
+        if filename is None:
+            if board.shape[0]>10 and board.shape[1] > 37:
+                # Initialize Gosper Glider Gun if we have space
+                delay = 0.001
+                mat = np.loadtxt('life/glider.txt', dtype=np.uint8)
+            elif board.shape[0] > 16 and board.shape[1] > 16:
+                #Initialize Pulsar
+                delay = 0.5
+                mat = np.loadtxt('life/pulsar.txt', dtype=np.uint8)
+            elif board.shape[0] > 4 and board.shape[1] > 4:
+                delay = 1
+                mat = np.loadtxt('life/basic.txt', dtype=np.uint8)
+            else:
+                raise RuntimeError('Board too small for defaults')
+        else:
+            mat = np.loadtxt(filename, dtype=np.uint8)
+
+        if mat.shape[0] > board.shape[0] or mat.shape[1] > board.shape[1]:
+            raise RuntimeError('Board too small for specified file')
+
+        last_img[0:mat.shape[0], 0:mat.shape[1]] = mat
+
+    next_img = np.zeros(last_img.shape, dtype=np.uint8)
     for i in range(last_img.shape[0]):
         for j in range(last_img.shape[1]):
             if last_img[i][j] == 0:
@@ -92,7 +68,7 @@ def compute_surroundings(row, col, array):
         [row, col-1]
     ]
     for point in to_check:
-        if point[0] >= 0 and point[0] < array.shape[0] and point[1] >= 0 and point[1] < array.shape[1]:
+        if 0 <= point[0] < array.shape[0] and 0 <= point[1] < array.shape[1]:
             total += array[point[0]][point[1]]
     return total
 
@@ -102,9 +78,4 @@ def convert_array_to_img(array):
     Turns an array of cell states into an image (3d np array)
     :return: The new array
     """
-    new_array = np.zeros((array.shape[0], array.shape[1], 3), dtype=np.uint8)
-    for i in range(array.shape[0]):
-        for j in range(array.shape[1]):
-            value = 255 * array[i][j]
-            new_array[i][j] = [value, value, value]
-    return new_array
+    return 255 * np.stack((array,)*3, axis=-1)
