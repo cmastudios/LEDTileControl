@@ -14,18 +14,18 @@ def display(board, leds, filename=None, passed_delay=0.001):
             if board.shape[0]>10 and board.shape[1] > 37:
                 # Initialize Gosper Glider Gun if we have space
                 delay = 0.001
-                mat = np.loadtxt('life/glider.txt', dtype=np.uint8)
+                mat = load_file('life/glider.txt')
             elif board.shape[0] > 16 and board.shape[1] > 16:
                 #Initialize Pulsar
                 delay = 0.5
-                mat = np.loadtxt('life/pulsar.txt', dtype=np.uint8)
+                mat = load_file('life/pulsar.txt')
             elif board.shape[0] > 4 and board.shape[1] > 4:
                 delay = 1
-                mat = np.loadtxt('life/basic.txt', dtype=np.uint8)
+                mat = load_file('life/basic.txt')
             else:
                 raise RuntimeError('Board too small for defaults')
         else:
-            mat = np.loadtxt(filename, dtype=np.uint8)
+            mat = load_file(filename)
 
         if mat.shape[0] > board.shape[0] or mat.shape[1] > board.shape[1]:
             raise RuntimeError('Board too small for specified file')
@@ -79,3 +79,21 @@ def convert_array_to_img(array):
     :return: The new array
     """
     return 255 * np.stack((array,)*3, axis=-1)
+
+def load_file(filename):
+    if filename.endswith('.cells'):
+        with open(filename, 'r') as f:
+            array = []
+            for line in f:
+                row = []
+                if line.startswith('!'):
+                    continue
+                for c in line:
+                    if c == '.':
+                        row.append(0)
+                    elif c == 'O':
+                        row.append(1)
+                array.append(row)
+        return np.array(array, dtype=np.uint8)
+    else:
+        return np.loadtxt(filename, dtype=np.uint8)
