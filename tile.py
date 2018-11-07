@@ -113,7 +113,7 @@ class LEDSimulatorCV(object):
 
     def draw(self, image: np.ndarray, delay: float = 0.001):
         image = image.astype(np.uint8)
-        image = self.cv.resize(image, (image.shape[0] * 10, image.shape[1] * 10))
+        image = self.cv.resize(image, (image.shape[1] * 10, image.shape[0] * 10))
         image = self.cv.cvtColor(image, self.cv.COLOR_RGB2BGR)
         self.cv.imshow("LEDs", image)
         key = self.cv.waitKey(int(delay * 1000))
