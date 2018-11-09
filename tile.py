@@ -1,6 +1,6 @@
 import numpy as np
 import time
-
+import crc8
 from config import *
 
 
@@ -98,9 +98,13 @@ class LEDStrip(object):
                 data[3 * idx] = r
                 data[3 * idx + 1] = g
                 data[3 * idx + 2] = b
+        crc = crc8.crc8()
+        crc.update(bytes(data))
+        print(crc.hexdigest())
 
         self.spi.xfer([ord('$')])
         self.spi.xfer(data)
+        self.spi.xfer(crc.digest())
 
         end = time.time()
         delta = end - start
