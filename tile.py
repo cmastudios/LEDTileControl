@@ -77,11 +77,12 @@ class LEDStrip(object):
         (height, width, 3) where height is the LEDs in the vertical direction and width is the total LEDs in
         the horizontal direction.
         :param image: Matrix of colors to display on the dancefloor
+
         :param delay: Seconds to wait after finishing writing to the LED strips
         """
         start = time.time()
 
-        data = np.zeros((image.shape[0] * image.shape[1] * 3,), dtype=np.uint8)
+        data = [0] * (image.shape[0] * image.shape[1] * 3)
         for y in range(image.shape[0]):
             for x in range(image.shape[1]):
                 idx = self.array.index(x, y)
