@@ -23,7 +23,7 @@ volatile uint8_t crc;
 
 void setup (void)
 {
-//  Serial.begin (9600);   // debugging
+  Serial.begin (9600);   // debugging
   
   // have to send on master in, *slave out*
   pinMode(MISO, OUTPUT);
@@ -49,17 +49,20 @@ ISR (SPI_STC_vect)
 {
   byte c = SPDR;
   if (reading) {
+    if ((pos - SKIP) == (NUM_LEDS * CHANNELS)) {
+      reading = false;
+      ++reads;
+      if (crc == c) {
+        new_frame = true;
+      }
+      return;
+    }
     if (pos >= SKIP) {
       //leds[(pos - SKIP) / CHANNELS].raw[(pos - SKIP) % CHANNELS] = c;
       *((uint8_t *)(leds) + pos - SKIP) = c;
       crc = _crc_ibutton_update(crc, c);
     }
     ++pos;
-    if ((pos - SKIP) == (NUM_LEDS * CHANNELS)) {
-      reading = false;
-      ++reads;
-      new_frame = true;
-    }
   } else if (c == MAGIC) {
     reading = true;
     pos = 0;
@@ -96,7 +99,8 @@ void loop (void)
     new_frame = false;
     FastLED.show();   
   }
-//  delay(1000);
-//  Serial.println(pos);
+  delay(1000);
+  Serial.println(pos);
+  Serial.println(crc);
 }  // end of loop
 

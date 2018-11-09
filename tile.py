@@ -1,6 +1,5 @@
 import numpy as np
 import time
-import crc8
 from config import *
 
 
@@ -59,13 +58,23 @@ class TileArray(object):
         tile = self.tiles[tiley][tilex]
         return tile.index(x, y) + tile.size() * tiley + tile.size() * self.rows * tilex
 
+def AddToCRC(b, crc):
+    if (b < 0):
+        b += 256
+    for i in range(8):
+        odd = ((b^crc) & 1) == 1
+        crc >>= 1
+        b >>= 1
+        if (odd):
+            crc ^= 0x8C # this means crc ^= 140
+    return crc
 
 class LEDStrip(object):
     def __init__(self, array: TileArray):
         import spidev
         self.spi = spidev.SpiDev()
         self.spi.open(0, 0)
-        self.spi.max_speed_hz = 2000000
+        self.spi.max_speed_hz = 1000000
         self.spi.mode = 0
 
         self.array = array
@@ -98,13 +107,14 @@ class LEDStrip(object):
                 data[3 * idx] = r
                 data[3 * idx + 1] = g
                 data[3 * idx + 2] = b
-        crc = crc8.crc8()
-        crc.update(bytes(data))
-        print(crc.hexdigest())
 
-        self.spi.xfer([ord('$')])
-        self.spi.xfer(data)
-        self.spi.xfer(crc.digest())
+        crc = 0
+        for b in data:
+            crc = AddToCRC(b, crc)
+
+        self.spi.xfer([ord('$')], self.spi.max_speed_hz)
+        self.spi.xfer(data, self.spi.max_speed_hz)
+        self.spi.xfer([crc], self.spi.max_speed_hz)
 
         end = time.time()
         delta = end - start
