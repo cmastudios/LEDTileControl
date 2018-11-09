@@ -81,7 +81,7 @@ class LEDStrip(object):
         """
         start = time.time()
 
-        data = np.zeros((image.shape[0] * image.shape[1],), dtype=np.uint8)
+        data = np.zeros((image.shape[0] * image.shape[1] * 3,), dtype=np.uint8)
         for y in range(image.shape[0]):
             for x in range(image.shape[1]):
                 idx = self.array.index(x, y)
