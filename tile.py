@@ -62,12 +62,12 @@ class TileArray(object):
 
 class LEDStrip(object):
     def __init__(self, array: TileArray):
-        from neopixel import Adafruit_NeoPixel
-        # Create NeoPixel object with appropriate configuration.
-        self.strip = Adafruit_NeoPixel(array.size(), LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS,
-                                       LED_CHANNEL)
-        # Intialize the library (must be called once before other functions).
-        self.strip.begin()
+        import spidev
+        self.spi = spidev.SpiDev()
+        self.spi.open(0, 0)
+        self.spi.max_speed_hz = 2000000
+        self.spi.mode = 0
+
         self.array = array
 
     def draw(self, image: np.ndarray, delay: float = 0.001):
@@ -79,17 +79,28 @@ class LEDStrip(object):
         :param image: Matrix of colors to display on the dancefloor
         :param delay: Seconds to wait after finishing writing to the LED strips
         """
-        from neopixel import Color
         start = time.time()
+
+        data = np.zeros((image.shape[0] * image.shape[1],), dtype=np.uint8)
         for y in range(image.shape[0]):
             for x in range(image.shape[1]):
                 idx = self.array.index(x, y)
                 r = int(image[y][x][0])
                 g = int(image[y][x][1])
                 b = int(image[y][x][2])
-                color = Color(g, r, b)
-                self.strip.setPixelColor(idx, color)
-        self.strip.show()
+                if r == ord('$'):
+                    r += 1
+                if g == ord('$'):
+                    g += 1
+                if b == ord('$'):
+                    b += 1
+                data[3 * idx] = r
+                data[3 * idx + 1] = g
+                data[3 * idx + 2] = b
+
+        self.spi.xfer([ord('$')])
+        self.spi.xfer(data)
+
         end = time.time()
         delta = end - start
         if delay > delta:
