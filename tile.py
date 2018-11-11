@@ -64,10 +64,13 @@ class LEDStrip(object):
     def __init__(self, array: TileArray):
         from neopixel import Adafruit_NeoPixel
         # Create NeoPixel object with appropriate configuration.
-        self.strip = Adafruit_NeoPixel(array.size(), LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS,
-                                       LED_CHANNEL)
+        self.strip0 = Adafruit_NeoPixel(array.size() // 2, 18, 800000, 10, False, 255, 0)
+        self.strip1 = Adafruit_NeoPixel(array.size() // 2, 13, 800000,  9, False, 255, 1)
+        # NOTES: /boot/cmdline.txt     spidev.bufsiz=32768
+        #        /boot/config.txt     core_freq=250
         # Intialize the library (must be called once before other functions).
-        self.strip.begin()
+        self.strip0.begin()
+        self.strip1.begin()
         self.array = array
 
     def draw(self, image: np.ndarray, delay: float = 0.001):
@@ -88,8 +91,10 @@ class LEDStrip(object):
                 g = int(image[y][x][1])
                 b = int(image[y][x][2])
                 color = Color(g, r, b)
-                self.strip.setPixelColor(idx, color)
-        self.strip.show()
+
+                (self.strip0 if idx < self.array.size() else self.strip1).setPixelColor(idx, color)
+        self.strip0.show()
+        self.strip1.show()
         end = time.time()
         delta = end - start
         if delay > delta:
