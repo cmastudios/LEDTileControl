@@ -100,9 +100,9 @@ class LEDStrip(object):
                     g = 1
                 if b == 0:
                     b = 1
-                data[idx] = r
-                data[idx+1] = g
-                data[idx+2] = b
+                data[3*idx] = r
+                data[3*idx+1] = g
+                data[3*idx+2] = b
                 #color = Color(g, r, b)
                 #self.strip.setPixelColor(idx, color)
         #self.strip.show()
@@ -111,7 +111,7 @@ class LEDStrip(object):
         while beg < len(data) - 1:
             try:
                 self.write_stream.write(bytes(data[beg:end]))
-            except e:
+            except Exception:
                 self.write_stream.write(bytes(data[beg:]))
             beg += packet_len
             end += packet_len
