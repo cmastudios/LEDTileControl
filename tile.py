@@ -62,12 +62,16 @@ class TileArray(object):
 
 class LEDStrip(object):
     def __init__(self, array: TileArray):
-        from neopixel import Adafruit_NeoPixel
+        #from neopixel import Adafruit_NeoPixel
         # Create NeoPixel object with appropriate configuration.
-        self.strip = Adafruit_NeoPixel(array.size(), LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS,
-                                       LED_CHANNEL)
+        #self.strip = Adafruit_NeoPixel(array.size(), LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS,
+                                       #LED_CHANNEL)
+        import io
+        import fcntl
+        self.write_stream = io.open("/dev/i2c-1", "wb", buffering=0)
+        fcntl.ioctl(self.write_stream, 0x703, 0x66)
         # Intialize the library (must be called once before other functions).
-        self.strip.begin()
+        #self.strip.begin()
         self.array = array
 
     def draw(self, image: np.ndarray, delay: float = 0.001):
@@ -79,7 +83,9 @@ class LEDStrip(object):
         :param image: Matrix of colors to display on the dancefloor
         :param delay: Seconds to wait after finishing writing to the LED strips
         """
-        from neopixel import Color
+        #from neopixel import Color
+        packet_len = 225
+        data = [0] * image.shape[0] * image.shape[1] * 3
         start = time.time()
         for y in range(image.shape[0]):
             for x in range(image.shape[1]):
@@ -87,9 +93,28 @@ class LEDStrip(object):
                 r = int(image[y][x][0])
                 g = int(image[y][x][1])
                 b = int(image[y][x][2])
-                color = Color(g, r, b)
-                self.strip.setPixelColor(idx, color)
-        self.strip.show()
+                # 0 is an invalid code (for error checking)
+                if r == 0:
+                    r = 1
+                if g == 0:
+                    g = 1
+                if b == 0:
+                    b = 1
+                data[idx] = r
+                data[idx+1] = g
+                data[idx+2] = b
+                #color = Color(g, r, b)
+                #self.strip.setPixelColor(idx, color)
+        #self.strip.show()
+        beg = 0
+        end = packet_len
+        while beg < len(data) - 1:
+            try:
+                self.write_stream.write(bytes(data[beg:end]))
+            except e:
+                self.write_stream.write(bytes(data[beg:]))
+            beg += packet_len
+            end += packet_len
         end = time.time()
         delta = end - start
         if delay > delta:
