@@ -50,7 +50,7 @@ OctoWS2811 leds(ledsPerStrip, displayMemory, drawingMemory, config);
 void receiveEvent(size_t count);
 void requestEvent(void);
 
-#define MEM_LEN 225
+#define MEM_LEN 6
 byte databuf[MEM_LEN];
 
 volatile unsigned int received;
@@ -60,12 +60,13 @@ void setup() {
   leds.begin();
   leds.show();
   // Setup for Slave mode, address 0x66, pins 18/19, external pullups, 4MHz
-  Wire.begin(I2C_SLAVE, 0x66, I2C_PINS_18_19, I2C_PULLUP_EXT, 4000000);
+  Wire.begin(I2C_SLAVE, 0x66, I2C_PINS_18_19, I2C_PULLUP_EXT, 2000000);
   received = 0;
   memset(databuf, 0, sizeof(databuf));
 
   Wire.onReceive(receiveEvent);
   Wire.onRequest(requestEvent);
+  Serial.begin(115200);
 }
 
 #define RED    0xFF0000
@@ -89,15 +90,20 @@ void setup() {
 
 void loop() {
   if(received){
-    for(int i = 0; i<MEM_LEN-2; i+=3){
-      if(databuf[i] > 0 && databuf[i+1] > 0 && databuf[i+2] > 0){
-        leds.setPixel(idx, databuf[i], databuf[i+1], databuf[i+2]);
-        idx++;
-        if(idx >= ledsPerStrip*usedStrips){
-          idx = 0;
-          leds.show();
-        }
+    // Show
+    if(databuf[0] == 1){
+      if(!leds.busy()){
+        leds.show();
       }
+    }
+    // Update color
+    else if(databuf[0] == 0){
+      leds.setPixel(
+        (databuf[1]<<8) + databuf[2], 
+        databuf[3],
+        databuf[4],
+        databuf[5]
+      );
     }
   }
 }
@@ -108,5 +114,13 @@ void receiveEvent(size_t count){
 }
 
 void requestEvent(void){
-  Wire.write(databuf, MEM_LEN);
+  char wait[1] = {'w'};
+  char ack[1] = {'a'};
+  if(leds.busy()){
+    Wire.write(wait, 1);
+  }else{
+    leds.show();
+    Wire.write(ack, 1);
+  }
+  Serial.println(leds.busy());
 }

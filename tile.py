@@ -84,8 +84,8 @@ class LEDStrip(object):
         :param delay: Seconds to wait after finishing writing to the LED strips
         """
         #from neopixel import Color
-        packet_len = 225
-        data = [0] * image.shape[0] * image.shape[1] * 3
+        # opcode, two bytes of idx, 3 bytes of color
+        packet_len = 6
         start = time.time()
         for y in range(image.shape[0]):
             for x in range(image.shape[1]):
@@ -93,28 +93,11 @@ class LEDStrip(object):
                 r = int(image[y][x][0])
                 g = int(image[y][x][1])
                 b = int(image[y][x][2])
-                # 0 is an invalid code (for error checking)
-                if r == 0:
-                    r = 1
-                if g == 0:
-                    g = 1
-                if b == 0:
-                    b = 1
-                data[idx] = r
-                data[idx+1] = g
-                data[idx+2] = b
+                self.write_stream.write(bytes([0, idx//256, idx%256, r, g, b]))
                 #color = Color(g, r, b)
                 #self.strip.setPixelColor(idx, color)
         #self.strip.show()
-        beg = 0
-        end = packet_len
-        while beg < len(data) - 1:
-            try:
-                self.write_stream.write(bytes(data[beg:end]))
-            except e:
-                self.write_stream.write(bytes(data[beg:]))
-            beg += packet_len
-            end += packet_len
+        self.write_stream.write(bytes[1])
         end = time.time()
         delta = end - start
         if delay > delta:
