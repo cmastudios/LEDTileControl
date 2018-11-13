@@ -97,7 +97,7 @@ class LEDStrip(object):
                 #color = Color(g, r, b)
                 #self.strip.setPixelColor(idx, color)
         #self.strip.show()
-        self.write_stream.write(bytes[1])
+        self.write_stream.write(bytes([1]))
         end = time.time()
         delta = end - start
         if delay > delta:
