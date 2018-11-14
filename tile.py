@@ -73,6 +73,7 @@ class LEDStrip(object):
         # Intialize the library (must be called once before other functions).
         #self.strip.begin()
         self.array = array
+        self.last_image = np.zeros((self.array.shape[0], self.array.shape[1], 3), dtype=np.uint8)
 
     def draw(self, image: np.ndarray, delay: float = 0.001):
         """
@@ -93,11 +94,14 @@ class LEDStrip(object):
                 r = int(image[y][x][0])
                 g = int(image[y][x][1])
                 b = int(image[y][x][2])
-                self.write_stream.write(bytes([0, idx//256, idx%256, r, g, b]))
+                if not np.array_equal(self.last_image[y][x], image[y][x]):
+                    #print("new color")
+                    self.write_stream.write(bytes([0, idx//256, idx%256, r, g, b]))
                 #color = Color(g, r, b)
                 #self.strip.setPixelColor(idx, color)
         #self.strip.show()
-        self.write_stream.write(bytes[1])
+        self.write_stream.write(bytes([1]))
+        self.last_image = np.copy(image)
         end = time.time()
         delta = end - start
         if delay > delta:
