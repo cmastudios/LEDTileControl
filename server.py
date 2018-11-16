@@ -1,4 +1,6 @@
 import multiprocessing
+
+import os
 from flask import Flask, request, redirect, render_template
 import run_pattern
 import tile
@@ -76,6 +78,10 @@ def save_shuffle():
     extra_args = ""
     start_proc()
     return redirect("/")
+
+@app.route('/update')
+def update():
+    return os.system("git stash && git pull && systemctl restart leds.service")
 
 
 if __name__ == "__main__":
