@@ -44,7 +44,7 @@ def shuffle(board, leds):
             while time.monotonic() - start < switch_time:
                 pattern.display(board, leds, *extra_args)
         except KeyboardInterrupt:
-            raise
+            return
         except:
             pass
 
