@@ -62,16 +62,7 @@ class TileArray(object):
 
 class LEDStrip(object):
     def __init__(self, array: TileArray):
-        import serial
-        #from neopixel import Adafruit_NeoPixel
-        # Create NeoPixel object with appropriate configuration.
-        #self.strip = Adafruit_NeoPixel(array.size(), LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS,
-        #                               LED_CHANNEL)
-        # Intialize the library (must be called once before other functions).
-        #self.strip.begin()
         self.array = array
-        self.ser = serial.Serial('/dev/ttyACM0')
-        self.last_image = np.zeros((array.shape[0], array.shape[1], 3), dtype=np.uint8)
 
     def draw(self, image: np.ndarray, delay: float = 0.001):
         """
@@ -82,7 +73,16 @@ class LEDStrip(object):
         :param image: Matrix of colors to display on the dancefloor
         :param delay: Seconds to wait after finishing writing to the LED strips
         """
-        #from neopixel import Color
+        pass
+
+class LEDStripTeensyUART(LEDStrip):
+    def __init__(self, array: TileArray, port='/dev/ttyACM0'):
+        super().__init__(array)
+        import serial
+        self.ser = serial.Serial(port)
+        self.last_image = np.zeros((array.shape[0], array.shape[1], 3), dtype=np.uint8)
+
+    def draw(self, image: np.ndarray, delay: float = 0.001):
         start = time.time()
         packet_len = 6
         self.ser.write([0xff] * 2 * 6)
@@ -95,11 +95,37 @@ class LEDStrip(object):
                     g = int(image[y][x][1])
                     b = int(image[y][x][2])
                     self.ser.write([0x01, idx//256, idx%256, r, g, b]);
-                    #color = Color(g, r, b)
-                    #self.strip.setPixelColor(idx, color)
-        #self.strip.show()
+
         self.last_image = np.copy(image)
         self.ser.write([0x02] * packet_len)
+        end = time.time()
+        delta = end - start
+        if delay > delta:
+            time.sleep(delay - delta)
+
+
+class LEDStripPWM(LEDStrip):
+    def __init__(self, array: TileArray):
+        super().__init__(array)
+        from neopixel import Adafruit_NeoPixel
+        # Create NeoPixel object with appropriate configuration.
+        self.strip = Adafruit_NeoPixel(array.size(), LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS,
+                                      LED_CHANNEL)
+        # Intialize the library (must be called once before other functions).
+        self.strip.begin()
+
+    def draw(self, image: np.ndarray, delay: float = 0.001):
+        from neopixel import Color
+        start = time.time()
+        for y in range(image.shape[0]):
+            for x in range(image.shape[1]):
+                idx = self.array.index(x, y)
+                r = int(image[y][x][0])
+                g = int(image[y][x][1])
+                b = int(image[y][x][2])
+                color = Color(g, r, b)
+                self.strip.setPixelColor(idx, color)
+        self.strip.show()
         end = time.time()
         delta = end - start
         if delay > delta:

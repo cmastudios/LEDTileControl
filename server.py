@@ -21,7 +21,7 @@ leds = None
 def run():
     global board, leds
     board = tile.TileArray(rows=rows, cols=cols, height=height, width=width)
-    leds = tile.LEDStrip(board)
+    leds = tile.LEDStripTeensyUART(board)
     if shuffle:
         run_pattern.shuffle(board, leds)
     else:
