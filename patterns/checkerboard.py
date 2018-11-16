@@ -1,12 +1,16 @@
 import random
 
 import numpy as np
+import helpers
 
 
 def display(board, leds, delay=0.5):
     delay = float(delay)
-    c1 = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-    c2 = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+    hue = random.random()
+    hue2 = hue + 0.37
+    hue2 = hue2 if hue2 < 1 else hue2 - 1
+    c1 = helpers.hsl_to_rgb(hue, 1, 0.5)
+    c2 = helpers.hsl_to_rgb(hue2, 1, 0.5)
     image = np.tile(c1, board.shape).astype(np.uint8)
     for ty in range(board.rows):
         for tx in range(board.cols):
