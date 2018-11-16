@@ -37,16 +37,11 @@ def shuffle(board, leds):
     while True:
         start = time.monotonic()
         name, extra_args = random.choice(patterns)
-        try:
-            pattern = importlib.import_module("patterns." + name)
+        pattern = importlib.import_module("patterns." + name)
 
-            # run for switch_time seconds
-            while time.monotonic() - start < switch_time:
-                pattern.display(board, leds, *extra_args)
-        except KeyboardInterrupt:
-            return
-        except:
-            pass
+        # run for switch_time seconds
+        while time.monotonic() - start < switch_time:
+            pattern.display(board, leds, *extra_args)
 
 
 if __name__ == "__main__":
