@@ -85,6 +85,7 @@ iteration = 0
 def display(board, leds, delay=0.01, skip=0):
     global p, placed, stuckc, iteration
     delay = float(delay)
+    skip = int(skip)
     image = np.tile([0, 0, 0], board.shape).astype(np.uint8)
 
     # reset when full
