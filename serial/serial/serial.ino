@@ -1,3 +1,4 @@
+
 /*  OctoWS2811 BasicTest.ino - Basic RGB LED Test
     http://www.pjrc.com/teensy/td_libs_OctoWS2811.html
     Copyright (c) 2013 Paul Stoffregen, PJRC.COM, LLC
@@ -34,17 +35,49 @@
 */
 
 #include <OctoWS2811.h>
+#define minimum(a,b)     (((a) < (b)) ? (a) : (b))
+
 #define PACKET_LEN 6
 
 byte databuf[PACKET_LEN];
 
+
 const int ledsPerStrip = 500;
 const int usedStrips = 6;
 
-DMAMEM int displayMemory[ledsPerStrip*6];
-int drawingMemory[ledsPerStrip*6];
+const int SCREEN_W = usedStrips * 10;
+const int SCREEN_H = ledsPerStrip / 10;
 
+DMAMEM int displayMemory[ledsPerStrip * 6];
+int drawingMemory[ledsPerStrip * 6];
 const int config = WS2811_GRB | WS2811_800kHz;
+
+enum {
+  JPEG_BUFLEN = 9000,
+  MAGIC1 = 0x11,
+  MAGIC2 = 0x22,
+  MAGIC3 = 0x33,
+  MAGIC4 = 0x44,
+  MAGIC5 = 0x55,
+  MAGIC6 = 0x66
+};
+enum {
+  CMD_BLANK = 0,
+  CMD_SETSOLID = 1,
+  CMD_SETFLOOR = 2
+};
+uint8_t in_data[JPEG_BUFLEN];
+uint32_t in_len = 0;
+int magic_read = 0;
+int len_read = 0;
+uint32_t data_read = 0;
+byte cmd = CMD_BLANK;
+enum {
+  STATE_READING_MAGIC,
+  STATE_READING_CMD,
+  STATE_READING_LEN,
+  STATE_READING_DATA
+} state = STATE_READING_MAGIC;
 
 OctoWS2811 leds(ledsPerStrip, displayMemory, drawingMemory, config);
 
@@ -56,76 +89,72 @@ void setup() {
   Serial.begin(0);
 }
 
-#define RED    0xFF0000
-#define GREEN  0x00FF00
-#define BLUE   0x0000FF
-#define YELLOW 0xFFFF00
-#define PINK   0xFF1088
-#define ORANGE 0xE05800
-#define WHITE  0xFFFFFF
-
-// Less intense...
-/*
-#define RED    0x160000
-#define GREEN  0x001600
-#define BLUE   0x000016
-#define YELLOW 0x101400
-#define PINK   0x120009
-#define ORANGE 0x100400
-#define WHITE  0x101010
-*/
 
 void loop() {
-  if(Serial.available() >= PACKET_LEN){
-    // Have we seen the frame initializer code (6 bytes
-    // of ones)?
-    boolean frameInitializer = true;
-    for(int i = 0; i<PACKET_LEN; i++){
-      databuf[i] = Serial.read();
-      if(databuf[i] != 0xff){
-        frameInitializer = false;
+  if (Serial.available()) {
+    byte val = Serial.read();
+    if (state == STATE_READING_MAGIC) {
+      if (magic_read == 0 && val == MAGIC1) {
+        ++magic_read;
+      } else if (magic_read == 1 && val == MAGIC2) {
+        ++magic_read;
+      } else if (magic_read == 2 && val == MAGIC3) {
+        ++magic_read;
+      } else if (magic_read == 3 && val == MAGIC4) {
+        ++magic_read;
+      } else if (magic_read == 4 && val == MAGIC5) {
+        ++magic_read;
+      } else if (magic_read == 5 && val == MAGIC6) {
+        ++magic_read;
+      } else {
+        magic_read = 0;
       }
-    }
-    if(frameInitializer){
-      boolean seenStart = false;
-      while(!seenStart){
-        while(!Serial.available()){}
-        if(Serial.read() == 0x00){
-          seenStart = true;
-          frameStarted = true;
+      if (magic_read == 6) {
+        state = STATE_READING_CMD;
+      }
+    } else if (state == STATE_READING_CMD) {
+      cmd = val;
+      state = STATE_READING_LEN;
+      len_read = 0;
+      in_len = 0;
+    } else if (state == STATE_READING_LEN) {
+      in_len |= (((uint32_t)val) << (24 - 8 * len_read));
+      ++len_read;
+      if (len_read == 4) {
+        state = STATE_READING_DATA;
+        data_read = 0;
+        if (in_len == 0) {
+          state = STATE_READING_MAGIC;
+          magic_read = 0;
+          run_command();
         }
       }
-    }else if(frameStarted){
-      if(databuf[0] == 0x01){
-        leds.setPixel(
-          (databuf[1]<<8) + databuf[2], 
-          databuf[3],
-          databuf[4],
-          databuf[5]
-        );
-      }else if(databuf[0] == 0x02){
-        if(!leds.busy()){
-          leds.show();
-        }
+    } else if (state == STATE_READING_DATA) {
+      in_data[data_read++] = val;
+      if (data_read == len_read || data_read >= JPEG_BUFLEN) {
+        state = STATE_READING_MAGIC;
+        magic_read = 0;
+        run_command();
       }
     }
   }
-  /*
-  if(received){
-    // Show
-    if(databuf[0] == 1){
-      if(!leds.busy()){
-        leds.show();
-      }
+}
+
+void run_command()
+{
+  int i;
+  if (cmd == CMD_BLANK) {
+    for (i = 0; i < SCREEN_H * SCREEN_W; ++i) {
+      leds.setPixel(i, 0, 0, 0);
     }
-    // Update color
-    else if(databuf[0] == 0){
-      leds.setPixel(
-        (databuf[1]<<8) + databuf[2], 
-        databuf[3],
-        databuf[4],
-        databuf[5]
-      );
+  } else if (cmd == CMD_SETSOLID) {
+    for (i = 0; i < SCREEN_H * SCREEN_W; ++i) {
+      leds.setPixel(i, in_data[0], in_data[1], in_data[2]);
     }
-  }*/
+  } else if (cmd == CMD_SETFLOOR) {
+    for (i = 0; i < SCREEN_H * SCREEN_W; ++i) {
+      leds.setPixel(i, in_data[3 * i + 0], in_data[3 * i + 1], in_data[3 * i + 2]);
+    }
+  }
+  leds.show();
 }

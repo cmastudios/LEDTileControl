@@ -55,11 +55,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     board = tile.TileArray(rows=args.rows, cols=args.cols, height=args.height, width=args.width)
-    if args.sim == 'OpenCV':
+    if args.output == 'OpenCV':
         leds = tile.LEDSimulatorCV(board)
-    elif args.sim == 'Matplotlib':
+    elif args.output == 'Matplotlib':
         leds = tile.LEDSimulatorMatplotlib(board)
-    elif args.sim == 'PWM':
+    elif args.output == 'PWM':
         leds = tile.LEDStripPWM(board)
     else:
         leds = tile.LEDStripTeensyUART(board)

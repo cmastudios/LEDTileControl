@@ -76,7 +76,7 @@ class LEDStrip(object):
         pass
 
 class LEDStripTeensyUART(LEDStrip):
-    def __init__(self, array: TileArray, port='/dev/ttyACM0'):
+    def __init__(self, array: TileArray, port='/dev/cu.usbmodem4204280'):
         super().__init__(array)
         import serial
         self.ser = serial.Serial(port)
@@ -85,19 +85,24 @@ class LEDStripTeensyUART(LEDStrip):
     def draw(self, image: np.ndarray, delay: float = 0.001):
         start = time.time()
         packet_len = 6
-        self.ser.write([0xff] * 2 * 6)
-        self.ser.write([0x00])
+        size = image.shape[0] * image.shape[1] * 3
+        self.ser.write([0x11, 0x22, 0x33, 0x44, 0x55, 0x66])
+        # size = 1
+        # self.ser.write([1, (size >> 24) & 0xff, (size >> 16) & 0xff, (size >> 8) & 0xff, (size) & 0xff])
+        # self.ser.write([0, 0, 0xff])
+        self.ser.write([2, (size >> 24) & 0xff, (size >> 16) & 0xff, (size >> 8) & 0xff, (size) & 0xff])
         for y in range(image.shape[0]):
             for x in range(image.shape[1]):
-                if not np.array_equal(self.last_image[y][x], image[y][x]):
-                    idx = self.array.index(x, y)
-                    r = int(image[y][x][0])
-                    g = int(image[y][x][1])
-                    b = int(image[y][x][2])
-                    self.ser.write([0x01, idx//256, idx%256, r, g, b]);
+                # if not np.array_equal(self.last_image[y][x], image[y][x]):
+                idx = self.array.index(x, y)
+                r = int(image[y][x][0])
+                g = int(image[y][x][1])
+                b = int(image[y][x][2])
+                #0x01, idx // 256, idx % 256,
+                self.ser.write([r, g, b])
 
         self.last_image = np.copy(image)
-        self.ser.write([0x02] * packet_len)
+        # self.ser.write([0x02] * packet_len)
         end = time.time()
         delta = end - start
         if delay > delta:
