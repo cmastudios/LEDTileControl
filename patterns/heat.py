@@ -6,7 +6,7 @@ heat = None
 
 frame = 0
 
-def display(board, leds):
+def display(board, leds, radius=10, period=10, smooth=0.2):
     global heat, frame
 
     w = board.shape[1]
@@ -21,7 +21,12 @@ def display(board, leds):
 
     nextHeat = np.zeros((h, w, 3))
 
-    if frame % 20 == 0:
+    try:
+        mod = int(period)
+    except:
+        mod = 10
+
+    if frame % mod == 0:
         newX = random.randint(0, w-1)
         newY = random.randint(0, h-1)
 
@@ -29,7 +34,11 @@ def display(board, leds):
 
         alpha = 0.6
 
-        r = 15
+        try:
+            r = int(radius)
+        except:
+            r = 10
+
         for dx in range(-r, r+1):
             for dy in range(-r, r+1):
                 if dx * dx + dy * dy < r * r:
@@ -38,7 +47,14 @@ def display(board, leds):
 
         nextHeat[newY][newX][1] = 255
 
-    factor = 0.8
+    try:
+        s = float(smooth)
+        if 0 <= s <= 1:
+            factor = 1 - s
+        else:
+            raise Exception()
+    except:
+        factor = 0.8
 
     for x in range(w):
         for y in range(h):
@@ -54,7 +70,7 @@ def display(board, leds):
 
     heat = nextHeat
 
-    leds.draw(heat, 0.03)
+    leds.draw(heat, 0.001)
 
     frame += 1
     return
