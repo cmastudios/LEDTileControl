@@ -31,17 +31,20 @@ def shuffle(board, leds):
         ('patrickstar', []),
         ('text', ['Vertigo', 2, 0]),
         ('tetris', [0, 3]),
-        ('fireworks', []),
+        ('firework', []),
     ]
     switch_time = 10
     while True:
         start = time.monotonic()
         name, extra_args = random.choice(patterns)
-        pattern = importlib.import_module("patterns." + name)
+        try:
+            pattern = importlib.import_module("patterns." + name)
 
-        # run for switch_time seconds
-        while time.monotonic() - start < switch_time:
-            pattern.display(board, leds, *extra_args)
+            # run for switch_time seconds
+            while time.monotonic() - start < switch_time:
+                pattern.display(board, leds, *extra_args)
+        except:
+            pass
 
 
 if __name__ == "__main__":
