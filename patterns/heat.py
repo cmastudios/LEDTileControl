@@ -43,7 +43,7 @@ def display(board, leds, radius=10, period=10, smooth=0.2):
             for dy in range(-r, r+1):
                 if dx * dx + dy * dy < r * r:
                     for c in range(3):
-                        heat[(newY + dy) % h][(newX + dx) % w][c] = (int)(color[c] * alpha + (1 - alpha)*heat[(newY + dy) % h][(newX + dx) % w][c])
+                        heat[(newY + dy) % h][(newX + dx) % w][c] = int(color[c] * alpha + (1 - alpha) * heat[(newY + dy) % h][(newX + dx) % w][c])
 
         nextHeat[newY][newX][1] = 255
 
@@ -64,7 +64,7 @@ def display(board, leds, radius=10, period=10, smooth=0.2):
                     for dx in (-1, 1):
                         newVal += heat[(y + dy) % h][(x + dx) % w][c]
 
-                nextHeat[y][x][c] = (int)((1-factor) * heat[y][x][c] + factor * newVal/4)
+                nextHeat[y][x][c] = int((1 - factor) * heat[y][x][c] + factor * newVal / 4)
 
 
 

@@ -3,11 +3,12 @@ from flask import Flask, request, redirect, render_template
 import run_pattern
 import tile
 import pkgutil
+import signal
 
 app = Flask("LEDServer")
 
-rows = 1
-cols = 1
+rows = 5
+cols = 6
 width = 10
 height = 10
 shuffle = False
@@ -20,13 +21,16 @@ leds = None
 
 def run():
     global board, leds
+    signal.signal(signal.SIGTERM, exit_gracefully)
     board = tile.TileArray(rows=rows, cols=cols, height=height, width=width)
-    leds = tile.LEDStrip(board)
+    leds = tile.LEDStripTeensyUART(board)
     if shuffle:
         run_pattern.shuffle(board, leds)
     else:
         run_pattern.run_pattern(board, leds, pattern, extra_args.split())
 
+def exit_gracefully():
+    raise KeyboardInterrupt()
 
 def start_proc():
     global process
@@ -75,4 +79,4 @@ def save_shuffle():
 
 
 if __name__ == "__main__":
-    app.run(port=5000, host="0")
+    app.run(port=80, host="0")

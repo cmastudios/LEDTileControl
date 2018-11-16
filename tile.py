@@ -18,6 +18,13 @@ class Tile(object):
             # moving to the left
             return self.width * y + (self.width - x - 1)
 
+    def deindex(self, i):
+        movingtoright = i // self.width % 2 == 0
+        if movingtoright:
+            return i % self.width, i // self.width
+        else:
+            return self.width - i % self.width - 1, i // self.width
+
     def size(self):
         return self.width * self.height
 
@@ -53,21 +60,27 @@ class TileArray(object):
     def tileindex(self, x, y):
         return x // self.width, y // self.height
 
+    def detileindex(self, i):
+        ti = i // (self.width * self.height)
+        return ti // self.rows, ti % self.rows
+
     def index(self, x, y):
         tilex, tiley = self.tileindex(x, y)
         x, y = x % self.width, y % self.height
         tile = self.tiles[tiley][tilex]
         return tile.index(x, y) + tile.size() * tiley + tile.size() * self.rows * tilex
 
+    def deindex(self, i):
+        tilex, tiley = self.detileindex(i)
+        # print("tix, tiy {} {} from {}".format(tilex, tiley, i))
+        li = i % (self.width * self.height)
+        tile = self.tiles[tiley][tilex]
+        lx, ly = tile.deindex(li)
+        return lx + self.width * tilex, ly + self.height * tiley
+
 
 class LEDStrip(object):
     def __init__(self, array: TileArray):
-        from neopixel import Adafruit_NeoPixel
-        # Create NeoPixel object with appropriate configuration.
-        self.strip = Adafruit_NeoPixel(array.size(), LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS,
-                                       LED_CHANNEL)
-        # Intialize the library (must be called once before other functions).
-        self.strip.begin()
         self.array = array
 
     def draw(self, image: np.ndarray, delay: float = 0.001):
@@ -79,6 +92,71 @@ class LEDStrip(object):
         :param image: Matrix of colors to display on the dancefloor
         :param delay: Seconds to wait after finishing writing to the LED strips
         """
+        pass
+
+class LEDStripTeensyUART(LEDStrip):
+    def __init__(self, array: TileArray, port='/dev/ttyACM0'):
+        super().__init__(array)
+        import serial
+        self.ser = serial.Serial(port)
+        self.last_image = np.zeros((array.shape[0], array.shape[1], 3), dtype=np.uint8)
+
+    def draw(self, image: np.ndarray, delay: float = 0.001):
+        start = time.time()
+
+        if np.all(image == image[0,:]):
+            single_color = image[0, 0]
+            self.send_single_color(single_color)
+        else:
+            self.send_entire_floor(image)
+
+        self.last_image = np.copy(image)
+        end = time.time()
+        delta = end - start
+        if delay > delta:
+            time.sleep(delay - delta)
+
+    # Commands
+    def send_entire_floor(self, image):
+        data = []
+        for i in range(self.array.size()):
+            x, y = self.array.deindex(i)
+            try:
+                r = int(image[y][x][0])
+                g = int(image[y][x][1])
+                b = int(image[y][x][2])
+            except IndexError:
+                r = 0
+                g = 0
+                b = 0
+            data += [r, g, b]
+        self.send_serial(2, data)
+
+    def send_single_color(self, color):
+        data = [color[0], color[1], color[2]]
+        self.send_serial(1, data)
+
+    # Send a command with payload
+    def send_serial(self, command, in_data):
+        data = [0x11, 0x22, 0x33, 0x44, 0x55, 0x66]
+        size = len(in_data)
+        data += [command, (size >> 24) & 0xff, (size >> 16) & 0xff, (size >> 8) & 0xff, (size) & 0xff]
+        data += in_data
+        self.ser.write(data)
+
+
+
+class LEDStripPWM(LEDStrip):
+    def __init__(self, array: TileArray):
+        super().__init__(array)
+        from neopixel import Adafruit_NeoPixel
+        # Create NeoPixel object with appropriate configuration.
+        self.strip = Adafruit_NeoPixel(array.size(), LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS,
+                                      LED_CHANNEL)
+        # Intialize the library (must be called once before other functions).
+        self.strip.begin()
+
+    def draw(self, image: np.ndarray, delay: float = 0.001):
         from neopixel import Color
         start = time.time()
         for y in range(image.shape[0]):
@@ -113,7 +191,7 @@ class LEDSimulatorCV(object):
 
     def draw(self, image: np.ndarray, delay: float = 0.001):
         image = image.astype(np.uint8)
-        image = self.cv.resize(image, (image.shape[0] * 10, image.shape[1] * 10))
+        image = self.cv.resize(image, (image.shape[1] * 10, image.shape[0] * 10))
         image = self.cv.cvtColor(image, self.cv.COLOR_RGB2BGR)
         self.cv.imshow("LEDs", image)
         key = self.cv.waitKey(int(delay * 1000))
