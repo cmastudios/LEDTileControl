@@ -51,6 +51,7 @@ if __name__ == "__main__":
     parser.add_argument('--height', help='LEDs per tile row', type=int, default=10)
     parser.add_argument('--width', help='LEDs per tile column', type=int, default=10)
     parser.add_argument('--output', '-o', help='Output mode', choices=('OpenCV', 'Matplotlib', 'Teensy', 'PWM'), default='Teensy')
+    parser.add_argument('--serial', help='Custom serial port')
 
     args = parser.parse_args()
 
@@ -62,7 +63,7 @@ if __name__ == "__main__":
     elif args.output == 'PWM':
         leds = tile.LEDStripPWM(board)
     else:
-        leds = tile.LEDStripTeensyUART(board)
+        leds = tile.LEDStripTeensyUART(board, port=args.serial)
 
     if args.pattern == 'shuffle':
         shuffle(board, leds)

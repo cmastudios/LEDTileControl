@@ -35,11 +35,13 @@
 */
 
 #include <OctoWS2811.h>
+#include <FastCRC.h>
 #define minimum(a,b)     (((a) < (b)) ? (a) : (b))
 
 #define PACKET_LEN 6
 
-byte databuf[PACKET_LEN];
+
+FastCRC32 CRC32;
 
 
 const int ledsPerStrip = 500;
@@ -68,15 +70,18 @@ enum {
 };
 uint8_t in_data[JPEG_BUFLEN];
 uint32_t in_len = 0;
+uint32_t in_crc = 0;
 int magic_read = 0;
 int len_read = 0;
+int crc_read = 0;
 uint32_t data_read = 0;
 byte cmd = CMD_BLANK;
 enum {
   STATE_READING_MAGIC,
   STATE_READING_CMD,
   STATE_READING_LEN,
-  STATE_READING_DATA
+  STATE_READING_DATA,
+  STATE_READING_CRC,
 } state = STATE_READING_MAGIC;
 
 OctoWS2811 leds(ledsPerStrip, displayMemory, drawingMemory, config);
@@ -132,9 +137,20 @@ void loop() {
     } else if (state == STATE_READING_DATA) {
       in_data[data_read++] = val;
       if (data_read == in_len || data_read >= JPEG_BUFLEN) {
+        state = STATE_READING_CRC;
+        crc_read = 0;
+        in_crc = 0;
+      }
+    } else if (state == STATE_READING_CRC) {
+      in_crc |= (((uint32_t)val) << (24 - 8 * crc_read));
+      ++crc_read;
+      if (crc_read == 4) {
+        register uint32_t crc_calc = CRC32.crc32(in_data, in_len);
         state = STATE_READING_MAGIC;
         magic_read = 0;
-        run_command();
+        if (in_crc == crc_calc) {
+          run_command();
+        }
       }
     }
   }

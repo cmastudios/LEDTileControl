@@ -1,5 +1,6 @@
 import numpy as np
 import time
+import binascii
 
 from config import *
 
@@ -140,10 +141,12 @@ class LEDStripTeensyUART(LEDStrip):
     def send_serial(self, command, in_data):
         data = [0x11, 0x22, 0x33, 0x44, 0x55, 0x66]
         size = len(in_data)
+        crc = int(binascii.crc32(bytes(in_data))) & 0xffffffff
+
         data += [command, (size >> 24) & 0xff, (size >> 16) & 0xff, (size >> 8) & 0xff, (size) & 0xff]
         data += in_data
+        data += [(crc >> 24) & 0xff, (crc >> 16) & 0xff, (crc >> 8) & 0xff, (crc) & 0xff]
         self.ser.write(data)
-
 
 
 class LEDStripPWM(LEDStrip):
