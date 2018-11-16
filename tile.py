@@ -121,9 +121,14 @@ class LEDStripTeensyUART(LEDStrip):
         data = []
         for i in range(self.array.size()):
             x, y = self.array.deindex(i)
-            r = int(image[y][x][0])
-            g = int(image[y][x][1])
-            b = int(image[y][x][2])
+            try:
+                r = int(image[y][x][0])
+                g = int(image[y][x][1])
+                b = int(image[y][x][2])
+            except IndexError:
+                r = 0
+                g = 0
+                b = 0
             data += [r, g, b]
         self.send_serial(2, data)
 
