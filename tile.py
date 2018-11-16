@@ -95,7 +95,7 @@ class LEDStrip(object):
         pass
 
 class LEDStripTeensyUART(LEDStrip):
-    def __init__(self, array: TileArray, port='/dev/cu.usbmodem4204280'):
+    def __init__(self, array: TileArray, port='/dev/ttyACM0'):
         super().__init__(array)
         import serial
         self.ser = serial.Serial(port)

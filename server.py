@@ -6,8 +6,8 @@ import pkgutil
 
 app = Flask("LEDServer")
 
-rows = 1
-cols = 1
+rows = 5
+cols = 6
 width = 10
 height = 10
 shuffle = False
@@ -75,4 +75,4 @@ def save_shuffle():
 
 
 if __name__ == "__main__":
-    app.run(port=5000, host="0")
+    app.run(port=80, host="0")
