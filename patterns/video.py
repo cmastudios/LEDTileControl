@@ -13,7 +13,7 @@ def display(board, leds, filename):
     ret, frame = cap.read()
 
     # fit picture to tile
-    resize = cv2.resize(frame, board.shape[0:2])
+    resize = cv2.resize(frame, (board.shape[1], board.shape[0]))
     resize = cv2.cvtColor(resize, cv2.COLOR_BGR2RGB)
 
     # display image
