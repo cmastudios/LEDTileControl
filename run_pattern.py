@@ -50,17 +50,19 @@ if __name__ == "__main__":
     parser.add_argument('--cols', help='Number of tile columns', type=int, default=1)
     parser.add_argument('--height', help='LEDs per tile row', type=int, default=10)
     parser.add_argument('--width', help='LEDs per tile column', type=int, default=10)
-    parser.add_argument('--sim', help='Simulation strategy', choices=('OpenCV', 'Matplotlib'))
+    parser.add_argument('--output', '-o', help='Output mode', choices=('OpenCV', 'Matplotlib', 'Teensy', 'PWM'), default='Teensy')
 
     args = parser.parse_args()
 
     board = tile.TileArray(rows=args.rows, cols=args.cols, height=args.height, width=args.width)
-    if args.sim == 'OpenCV':
+    if args.output == 'OpenCV':
         leds = tile.LEDSimulatorCV(board)
-    elif args.sim == 'Matplotlib':
+    elif args.output == 'Matplotlib':
         leds = tile.LEDSimulatorMatplotlib(board)
+    elif args.output == 'PWM':
+        leds = tile.LEDStripPWM(board)
     else:
-        leds = tile.LEDStrip(board)
+        leds = tile.LEDStripTeensyUART(board)
 
     if args.pattern == 'shuffle':
         shuffle(board, leds)
