@@ -32,6 +32,18 @@ class TestTile(TestCase):
         self.assertEqual(20, tile3.index(0, 2))
         self.assertEqual(29, tile3.index(9, 2))
 
+    def test_deindex(self):
+        tile1 = Tile(3, 3)
+        self.assertEqual((0, 0), tile1.deindex(0))
+        self.assertEqual((1, 0), tile1.deindex(1))
+        self.assertEqual((2, 0), tile1.deindex(2))
+        self.assertEqual((2, 1), tile1.deindex(3))
+        self.assertEqual((1, 1), tile1.deindex(4))
+        self.assertEqual((0, 1), tile1.deindex(5))
+        self.assertEqual((0, 2), tile1.deindex(6))
+        self.assertEqual((1, 2), tile1.deindex(7))
+        self.assertEqual((2, 2), tile1.deindex(8))
+
 
 class TestTileArray(TestCase):
     def test_index(self):
@@ -56,3 +68,46 @@ class TestTileArray(TestCase):
         self.assertEqual(15, array.index(2, 3))
         self.assertEqual(14, array.index(3, 3))
 
+    def test_tile_deindex(self):
+        array = TileArray(2, 2, 2, 2)
+        self.assertEqual((0, 0), array.detileindex(0))
+        self.assertEqual((0, 0), array.detileindex(1))
+        self.assertEqual((0, 0), array.detileindex(2))
+        self.assertEqual((0, 0), array.detileindex(3))
+
+        self.assertEqual((0, 1), array.detileindex(4))
+        self.assertEqual((0, 1), array.detileindex(5))
+        self.assertEqual((0, 1), array.detileindex(6))
+        self.assertEqual((0, 1), array.detileindex(7))
+
+        self.assertEqual((1, 0), array.detileindex(8))
+        self.assertEqual((1, 0), array.detileindex(9))
+        self.assertEqual((1, 0), array.detileindex(10))
+        self.assertEqual((1, 0), array.detileindex(11))
+
+        self.assertEqual((1, 1), array.detileindex(12))
+        self.assertEqual((1, 1), array.detileindex(13))
+        self.assertEqual((1, 1), array.detileindex(14))
+        self.assertEqual((1, 1), array.detileindex(15))
+
+    def test_deindex(self):
+        array = TileArray(2, 2, 2, 2)
+        self.assertEqual((0, 0), array.deindex(0))
+        self.assertEqual((1, 0), array.deindex(1))
+        self.assertEqual((1, 1), array.deindex(2))
+        self.assertEqual((0, 1), array.deindex(3))
+
+        self.assertEqual((0, 2), array.deindex(4))
+        self.assertEqual((1, 2), array.deindex(5))
+        self.assertEqual((1, 3), array.deindex(6))
+        self.assertEqual((0, 3), array.deindex(7))
+
+        self.assertEqual((2, 0), array.deindex(8))
+        self.assertEqual((3, 0), array.deindex(9))
+        self.assertEqual((3, 1), array.deindex(10))
+        self.assertEqual((2, 1), array.deindex(11))
+
+        self.assertEqual((2, 2), array.deindex(12))
+        self.assertEqual((3, 2), array.deindex(13))
+        self.assertEqual((3, 3), array.deindex(14))
+        self.assertEqual((2, 3), array.deindex(15))

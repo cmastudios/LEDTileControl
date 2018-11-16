@@ -18,6 +18,13 @@ class Tile(object):
             # moving to the left
             return self.width * y + (self.width - x - 1)
 
+    def deindex(self, i):
+        movingtoright = i // self.width % 2 == 0
+        if movingtoright:
+            return i % self.width, i // self.width
+        else:
+            return self.width - i % self.width - 1, i // self.width
+
     def size(self):
         return self.width * self.height
 
@@ -53,11 +60,23 @@ class TileArray(object):
     def tileindex(self, x, y):
         return x // self.width, y // self.height
 
+    def detileindex(self, i):
+        ti = i // (self.width * self.height)
+        return ti // self.rows, ti % self.rows
+
     def index(self, x, y):
         tilex, tiley = self.tileindex(x, y)
         x, y = x % self.width, y % self.height
         tile = self.tiles[tiley][tilex]
         return tile.index(x, y) + tile.size() * tiley + tile.size() * self.rows * tilex
+
+    def deindex(self, i):
+        tilex, tiley = self.detileindex(i)
+        # print("tix, tiy {} {} from {}".format(tilex, tiley, i))
+        li = i % (self.width * self.height)
+        tile = self.tiles[tiley][tilex]
+        lx, ly = tile.deindex(li)
+        return lx + self.width * tilex, ly + self.height * tiley
 
 
 class LEDStrip(object):
@@ -84,29 +103,42 @@ class LEDStripTeensyUART(LEDStrip):
 
     def draw(self, image: np.ndarray, delay: float = 0.001):
         start = time.time()
-        packet_len = 6
-        size = image.shape[0] * image.shape[1] * 3
-        self.ser.write([0x11, 0x22, 0x33, 0x44, 0x55, 0x66])
-        # size = 1
-        # self.ser.write([1, (size >> 24) & 0xff, (size >> 16) & 0xff, (size >> 8) & 0xff, (size) & 0xff])
-        # self.ser.write([0, 0, 0xff])
-        self.ser.write([2, (size >> 24) & 0xff, (size >> 16) & 0xff, (size >> 8) & 0xff, (size) & 0xff])
-        for y in range(image.shape[0]):
-            for x in range(image.shape[1]):
-                # if not np.array_equal(self.last_image[y][x], image[y][x]):
-                idx = self.array.index(x, y)
-                r = int(image[y][x][0])
-                g = int(image[y][x][1])
-                b = int(image[y][x][2])
-                #0x01, idx // 256, idx % 256,
-                self.ser.write([r, g, b])
+
+        if np.all(image == image[0,:]):
+            single_color = image[0, 0]
+            self.send_single_color(single_color)
+        else:
+            self.send_entire_floor(image)
 
         self.last_image = np.copy(image)
-        # self.ser.write([0x02] * packet_len)
         end = time.time()
         delta = end - start
         if delay > delta:
             time.sleep(delay - delta)
+
+    # Commands
+    def send_entire_floor(self, image):
+        data = []
+        for i in range(self.array.size()):
+            x, y = self.array.deindex(i)
+            r = int(image[y][x][0])
+            g = int(image[y][x][1])
+            b = int(image[y][x][2])
+            data += [r, g, b]
+        self.send_serial(2, data)
+
+    def send_single_color(self, color):
+        data = [color[0], color[1], color[2]]
+        self.send_serial(1, data)
+
+    # Send a command with payload
+    def send_serial(self, command, in_data):
+        data = [0x11, 0x22, 0x33, 0x44, 0x55, 0x66]
+        size = len(in_data)
+        data += [command, (size >> 24) & 0xff, (size >> 16) & 0xff, (size >> 8) & 0xff, (size) & 0xff]
+        data += in_data
+        self.ser.write(data)
+
 
 
 class LEDStripPWM(LEDStrip):

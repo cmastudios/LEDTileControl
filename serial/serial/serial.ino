@@ -131,7 +131,7 @@ void loop() {
       }
     } else if (state == STATE_READING_DATA) {
       in_data[data_read++] = val;
-      if (data_read == len_read || data_read >= JPEG_BUFLEN) {
+      if (data_read == in_len || data_read >= JPEG_BUFLEN) {
         state = STATE_READING_MAGIC;
         magic_read = 0;
         run_command();
