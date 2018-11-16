@@ -80,9 +80,10 @@ pieces = (I, J, L, O, S, T, Z)
 p = None
 placed = []
 stuckc = 0
+iteration = 0
 
-def display(board, leds, delay=0.01):
-    global p, placed, stuckc
+def display(board, leds, delay=0.01, skip=0):
+    global p, placed, stuckc, iteration
     delay = float(delay)
     image = np.tile([0, 0, 0], board.shape).astype(np.uint8)
 
@@ -116,5 +117,7 @@ def display(board, leds, delay=0.01):
     for pi in placed:
         pi.render(image)
 
-    leds.draw(image, delay)
+    iteration += 1
+    if iteration % skip == 0:
+        leds.draw(image, delay)
 

@@ -29,7 +29,9 @@ def shuffle(board, leds):
     patterns = [
         ('checkerboard', []),
         ('patrickstar', []),
-        ('text', ['Vertigo']),
+        ('text', ['Vertigo', 2, 0]),
+        ('tetris', [0, 3]),
+        ('fireworks', []),
     ]
     switch_time = 10
     while True:

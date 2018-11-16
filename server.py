@@ -81,7 +81,7 @@ def save_shuffle():
 
 @app.route('/update')
 def update():
-    return os.system("git stash && git pull && systemctl restart leds.service")
+    return os.system("git stash && git checkout master && git pull && systemctl restart leds.service")
 
 
 if __name__ == "__main__":
