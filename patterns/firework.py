@@ -19,6 +19,9 @@ max_fireworks = 10000
 
 def display(board, leds, num_fireworks=5, firework_omega=100, segs=10):
     global fireworks, time, background_color, color_choices
+    num_fireworks = int(num_fireworks)
+    firework_omega = int(firework_omega)
+    segs = int(segs)
     img = np.tile(background_color, board.shape).astype(np.uint8)
     if time % firework_omega == 0 and len(fireworks) < max_fireworks:
         for i in range(num_fireworks):
@@ -74,6 +77,7 @@ class Segment:
     def update(self):
         self.start = (self.start[0] + self.speed*cos(self.angle), self.start[1] + self.speed*sin(self.angle))
         self.times += 1
+        self.color = (int(self.color[0] * 0.99), int(self.color[1] * 0.99), int(self.color[2] * 0.99))
     
     def get_end(self):
         return (int(self.start[0] + self.length*cos(self.angle)),
