@@ -1,10 +1,14 @@
 import random
 import numpy as np
 
+iteration = 0
 
-def display(board, leds, pixeldelay=0.05, flashdelay=0.2):
+def display(board, leds, pixeldelay=0.05, flashdelay=0.2, skip=0):
+    global iteration
     pixeldelay = float(pixeldelay)
     flashdelay = float(flashdelay)
+    skip = int(skip)
+
 
     # pick a random color
     color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
@@ -14,7 +18,9 @@ def display(board, leds, pixeldelay=0.05, flashdelay=0.2):
     for i in range(board.shape[0]):
         for j in range(board.shape[1]):
             img[i][j] = color
-            leds.draw(img, delay=pixeldelay)
+            if iteration % skip == 0:
+                leds.draw(img, delay=pixeldelay)
+            iteration += 1
 
     # disco flash the tile
     for i in range(3):
