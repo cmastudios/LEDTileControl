@@ -82,7 +82,7 @@ placed = []
 stuckc = 0
 iteration = 0
 
-def display(board, leds, delay=0.01, skip=0):
+def display(board, leds, delay=0.01, skip=1):
     global p, placed, stuckc, iteration
     delay = float(delay)
     skip = int(skip)
