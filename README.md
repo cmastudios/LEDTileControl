@@ -1,7 +1,7 @@
 # LEDTileControl
 Controls RxC tiles of HxW WS2812 LEDs from a Raspberry Pi on one PWM pin.
 
-![Imgur](https://i.imgur.com/9CEkTBg.jpg)
+![Imgur](https://i.imgur.com/1FKZu4g.jpg)
 
 ## Setting up the development environment
 
